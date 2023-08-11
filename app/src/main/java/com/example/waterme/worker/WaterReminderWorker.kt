@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.waterme.R
+import kotlinx.coroutines.delay
 
 class WaterReminderWorker(
     context: Context,
@@ -28,6 +29,7 @@ class WaterReminderWorker(
 
     override suspend fun doWork(): Result {
 
+        delay(inputData.getLong(durationKey, defaultDuration))
         val plantName = inputData.getString(nameKey)
 
         makePlantReminderNotification(
@@ -40,5 +42,7 @@ class WaterReminderWorker(
 
     companion object {
         const val nameKey = "NAME"
+        const val durationKey = "DURATION"
+        const val defaultDuration = 5000L
     }
 }
