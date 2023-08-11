@@ -17,10 +17,11 @@
 package com.example.waterme.data
 
 import android.content.Context
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.example.waterme.WORK_NAME
 import com.example.waterme.model.Plant
 import com.example.waterme.worker.WaterReminderWorker
 import java.util.concurrent.TimeUnit
@@ -28,8 +29,22 @@ import java.util.concurrent.TimeUnit
 class WorkManagerWaterRepository(context: Context) : WaterRepository {
     private val workManager = WorkManager.getInstance(context)
 
+
     override val plants: List<Plant>
         get() = DataSource.plants
 
-    override fun scheduleReminder(duration: Long, unit: TimeUnit, plantName: String) {}
+    override fun scheduleReminder(duration: Long, unit: TimeUnit, plantName: String) {
+        workManager.enqueueUniqueWork(
+            WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequestBuilder<WaterReminderWorker>()
+                .setInputData(
+                    workDataOf(
+                        WaterReminderWorker.durationKey to unit.toMillis(duration),
+                        WaterReminderWorker.nameKey to plantName
+                    )
+                )
+                .build()
+        )
+    }
 }
